@@ -4,7 +4,11 @@
  * Copyright(c) 2011 TJ Holowaychuk
  * Copyright(c) 2014-2015 Douglas Christopher Wilson
  * MIT Licensed
+ *
+ * Yossi - adding dynamic root by subdomain
+ *
  */
+ 
 
 'use strict'
 
@@ -54,6 +58,8 @@ function serveStatic(root, options) {
 
   // headers listener
   var setHeaders = opts.setHeaders
+  
+  var addSubDomainToRoot = opts.addSubDomainToRoot !== false
 
   if (setHeaders && typeof setHeaders !== 'function') {
     throw new TypeError('option setHeaders must be function')
@@ -90,6 +96,18 @@ function serveStatic(root, options) {
     if (path === '/' && originalUrl.pathname.substr(-1) !== '/') {
       path = ''
     }
+    
+    var domain = req.headers.host,
+    subDomain = domain.split('.');
+ 
+    if(subDomain.length > 2){
+        subDomain = "/" + subDomain[0];
+    } else {
+        subDomain = "/default ";
+    }
+    
+    path = subDomain + path
+
 
     // create send stream
     var stream = send(req, path, opts)
